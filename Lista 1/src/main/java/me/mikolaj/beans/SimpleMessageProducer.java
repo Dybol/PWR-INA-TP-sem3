@@ -8,6 +8,6 @@ public class SimpleMessageProducer implements MessageProducer {
 
 	@Override 
 	public String getMessage() {
-		return "Hello World! Today is: " + LocalDateTime.now();
+		return "Hello World xd! Today is: " + LocalDateTime.now();
 	} 
 }
