@@ -6,6 +6,6 @@ public class SimpleMessageProducer implements MessageProducer {
 
 	@Override 
 	public String getMessage() {
-		return "Hello World! " + System.currentTimeMillis();
+		return "Hello World! Current time in ms: " + System.currentTimeMillis();
 	} 
 }
