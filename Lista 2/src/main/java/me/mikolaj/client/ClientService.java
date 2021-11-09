@@ -11,10 +11,12 @@ import java.util.Objects;
 @Service
 public class ClientService {
 
+	//pobieramy wszystkie faktury dla danego klienta
 	public List<Invoice> findAllClientInvoices(final Integer clientId) {
 		return findById(clientId).getInvoices();
 	}
 
+	//znajdujemy klienta poprzez podane id
 	public Client findById(final Integer clientId) {
 		final List<Client> clients = Client.getAllClients();
 		clients.removeIf(client -> !Objects.equals(client.getId(), clientId));

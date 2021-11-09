@@ -46,10 +46,6 @@ public class Invoice {
 		this.client = client;
 	}
 
-	public void addLineItem(final LineItem item) {
-		this.lineItems.add(item);
-	}
-
 	//law od demeter - pobieramy pelna cene lineItemow - nie odwolujemy sie do produktu i jego jednostkowej ceny
 	public double getTotalPrice() {
 		final AtomicReference<Double> sum = new AtomicReference<>(0d);

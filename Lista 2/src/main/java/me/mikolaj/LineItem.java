@@ -29,6 +29,7 @@ public class LineItem {
 		this.product = product;
 	}
 
+	//zwracamy pelna cene danego itemu - cena produktu * ilosc 
 	public Double getFullPrice() {
 		return quantity * product.getPrice();
 	}

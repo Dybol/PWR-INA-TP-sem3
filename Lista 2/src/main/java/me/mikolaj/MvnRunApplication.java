@@ -11,9 +11,10 @@ import java.util.Scanner;
 @ComponentScan(basePackageClasses = Logic.class)
 public class MvnRunApplication {
 
-	public static void main(String[] args) {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MvnRunApplication.class);
-		Logic logic = ctx.getBean(Logic.class);
+	//klasa glowna, tu uruchamiamy nasza aplikacje
+	public static void main(final String[] args) {
+		final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MvnRunApplication.class);
+		final Logic logic = ctx.getBean(Logic.class);
 		logic.loop();
 		ctx.close();
 	}

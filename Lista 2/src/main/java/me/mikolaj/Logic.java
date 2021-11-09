@@ -2,6 +2,7 @@ package me.mikolaj;
 
 import me.mikolaj.client.Client;
 import me.mikolaj.client.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,11 +17,14 @@ public class Logic {
 
 	private final Scanner scanner;
 
+	//wstrzykujemy skaner i serwis dla klienta
+	@Autowired
 	public Logic(final ClientService clientService, final Scanner scanner) {
 		this.clientService = clientService;
 		this.scanner = scanner;
 	}
 
+	//metoda odpowiadajaca za dzialanie aplikacji, wybieranie opcji itp.
 	public void loop() {
 		createClient(scanner);
 		while (true) {
@@ -55,6 +59,7 @@ public class Logic {
 		}
 	}
 
+	//tworzymy nowego klienta
 	public static void createClient(final Scanner scanner) {
 
 		System.out.println("Podaj imie klienta: ");
@@ -65,6 +70,7 @@ public class Logic {
 		System.out.println("Stworzyles klienta o id: " + client.getId());
 	}
 
+	//tworzymy nowa fakture
 	public static void createInvoice(final Scanner scanner, final Client client) {
 		scanner.nextLine();
 		System.out.println("Podaj nazwe produktu");

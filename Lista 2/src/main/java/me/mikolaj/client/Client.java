@@ -9,12 +9,14 @@ import java.util.Objects;
 //klasa odpowiadajaca tylko za klienta - moze byc traktowana jak encja
 public class Client {
 
+	//lista wszystkich klientów
 	private static final List<Client> allClients = new ArrayList<>();
 
 	private Integer id;
 	private String firstName;
 	private String lastName;
 
+	//tworzymy nowego klienta i dodajemy go do listy wszystkich klientow
 	public Client(final String firstName, final String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -22,7 +24,7 @@ public class Client {
 		allClients.add(this);
 	}
 
-	private List<Invoice> invoices = new ArrayList<>();
+	private final List<Invoice> invoices = new ArrayList<>();
 
 	public Integer getId() {
 		return id;
@@ -52,16 +54,15 @@ public class Client {
 		return invoices;
 	}
 
-	public void setInvoices(final List<Invoice> invoices) {
-		this.invoices = invoices;
-	}
-
+	//dodajemy fakture dla danego klienta
 	public void addInvoice(final Invoice invoice) {
 		allClients.remove(this);
 		this.invoices.add(invoice);
 		allClients.add(this);
 	}
 
+
+	//zwracamy wszystkich klientow
 	public static List<Client> getAllClients() {
 		return allClients;
 	}
@@ -72,7 +73,7 @@ public class Client {
 				"id=" + id +
 				", firstName='" + firstName + '\'' +
 				", lastName='" + lastName + '\'' +
-				", invoices='" + invoices.size();
+				", invoices=" + invoices.size();
 	}
 
 	@Override

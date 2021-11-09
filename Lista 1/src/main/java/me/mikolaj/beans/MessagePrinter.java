@@ -12,7 +12,7 @@ public class MessagePrinter {
 
 	@Autowired
 	public MessagePrinter(final MessageProducer producer,
-						  @DecoratorProducer(type = DecoratorProducer.ProducerType.UPPER) final MessageDecorator decorator) {
+						  @DecoratorProducer(type = DecoratorProducer.ProducerType.LOWER) final MessageDecorator decorator) {
 		this.producer = producer;
 		this.decorator = decorator;
 	}
