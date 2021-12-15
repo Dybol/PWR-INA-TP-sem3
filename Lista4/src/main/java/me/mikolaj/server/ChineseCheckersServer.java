@@ -15,7 +15,6 @@ public class ChineseCheckersServer {
 				if (Player.getPlayers().size() > 6)
 					throw new IllegalStateException("Za duzo graczy!");
 				pool.execute(new Player(listener.accept(), Player.getPlayers().size() + 1));
-				System.out.println("loop");
 			}
 		}
 	}

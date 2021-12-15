@@ -103,9 +103,8 @@ public class ChineseCheckersClient {
 	private void fillForComplexHomes(final Integer[][] HOME_X, final Color color, final int i, final int j) {
 		for (final Integer[] x : HOME_X) {
 			for (int y = 0; y < x.length - 1; y += 2) {
-				if (x[y] == i && x[y + 1] == j) {
+				if (x[y] == i && x[y + 1] == j)
 					board[i][j].setBackground(color);
-				}
 			}
 		}
 	}
@@ -126,10 +125,9 @@ public class ChineseCheckersClient {
 	}
 
 	public void calculateSquare(final int squareX, final int squareY, final int movedX, final int movedY) {
-
-		//probably valid move
 		int changeX = 0;
 		int changeY = 0;
+		
 		if (movedX > 50 || movedX < 0 || movedY > 50 || movedY < 0) {
 			if (movedX > 0)
 				changeX = movedX / 50;
@@ -227,13 +225,7 @@ public class ChineseCheckersClient {
 		public Square() {
 			setBackground(Color.white);
 			setLayout(new GridBagLayout());
-			label.setFont(new Font("Arial", Font.BOLD, 40));
 			add(label);
-		}
-
-		public void setText(final char text) {
-			label.setForeground(text == '1' ? Color.BLUE : Color.RED);
-			label.setText(text + "");
 		}
 	}
 

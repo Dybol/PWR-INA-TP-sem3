@@ -5,6 +5,7 @@ import java.awt.*;
 public class Constants {
 	public static final Integer WIDTH = 25;
 	public static final Integer HEIGHT = 17;
+	
 	public static final Integer[] WIDTHS = {
 			1, 2, 3, 4, 13, 12, 11, 10, 9, 10, 11, 12, 13, 4, 3, 2, 1
 	};
