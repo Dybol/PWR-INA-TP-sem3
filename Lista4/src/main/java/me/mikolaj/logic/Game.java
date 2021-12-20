@@ -2,17 +2,36 @@ package me.mikolaj.logic;
 
 import me.mikolaj.client.Player;
 
+/**
+ * Game representation
+ */
 public class Game {
 
-	//singleton
-	private static final Game gameInstance = new Game();
+	/**
+	 * Singleton - there is only one game instance
+	 */
+	private static volatile Game gameInstance = null;
 
+	/**
+	 * Which player moves now
+	 */
 	private Player currentPlayer;
+
+	/**
+	 * Counter for players moves
+	 */
 	private int counter = 1;
 
+	/**
+	 * State of the game
+	 */
 	private GameState gameState = GameState.WAITING_FOR_PLAYERS;
 
-	// Metoda obslugujaca ruch
+	/**
+	 * Makes a move
+	 *
+	 * @param player - Current player
+	 */
 	public synchronized void move(final Player player) {
 		if (player != currentPlayer) {
 			throw new IllegalStateException("Not your turn");
@@ -26,23 +45,55 @@ public class Game {
 		counter++;
 	}
 
+
+	/**
+	 * Gets the current player
+	 *
+	 * @return current player
+	 */
 	public Player getCurrentPlayer() {
 		return currentPlayer;
 	}
 
+	/**
+	 * Sets the current player
+	 *
+	 * @param currentPlayer - current player
+	 */
 	public void setCurrentPlayer(final Player currentPlayer) {
 		this.currentPlayer = currentPlayer;
 	}
 
+	/**
+	 * Gets current state of the game
+	 *
+	 * @return current game state
+	 */
 	public GameState getGameState() {
 		return gameState;
 	}
 
+	/**
+	 * Sets current state of the game
+	 *
+	 * @param gameState - sets current game state
+	 */
 	public void setGameState(final GameState gameState) {
 		this.gameState = gameState;
 	}
 
+	/**
+	 * Double-checked locking
+	 *
+	 * @return
+	 */
 	public static Game getGameInstance() {
+		if (gameInstance == null) {
+			synchronized (Game.class) {
+				if (gameInstance == null)
+					gameInstance = new Game();
+			}
+		}
 		return gameInstance;
 	}
 }

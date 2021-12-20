@@ -10,34 +10,75 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Client's representation
+ */
 public class ChineseCheckersClient {
 
+	/**
+	 * Frame instance
+	 */
 	private final JFrame frame = new JFrame("Chinese Checkers");
+	/**
+	 * JLabel for messages
+	 */
 	private final JLabel messageLabel = new JLabel("...");
+
+	/**
+	 * JButton for starting the game
+	 */
 	private final JButton startButton = new JButton("start");
 
+	/**
+	 * Representation of the board
+	 */
 	private final Square[][] board = new Square[17][25];
+
+	/**
+	 * Current square (player moves from a previous square to the current square)
+	 */
 	private Square currentSquare;
+
+	/**
+	 * Previous square (player moves from a previous square to the current square)
+	 */
 	private Square previousSquare;
 
+	/**
+	 * Socket for communication between client and server
+	 */
 	private final Socket socket;
-	private final Scanner in;
-	private final PrintWriter out;
 
+	/**
+	 * Scanner for reading input
+	 */
+	private final Scanner input;
+
+	/**
+	 * PrintWriter for writing output
+	 */
+	private final PrintWriter output;
+
+	/**
+	 * Constructor for ChineseCheckersClient
+	 * We are creating the board
+	 *
+	 * @param serverAddress - server IP address
+	 * @throws Exception
+	 */
 	public ChineseCheckersClient(final String serverAddress) throws Exception {
 
-		// Laczenie z serwerem
+		// Connecting with the server
 		socket = new Socket(serverAddress, 58901);
-		// Zdefiniowanie Skanera opartego na streamie wejściowym (cos przychodzi z serwera)
-		in = new Scanner(socket.getInputStream());
-		out = new PrintWriter(socket.getOutputStream(), true);
+		input = new Scanner(socket.getInputStream());
+		output = new PrintWriter(socket.getOutputStream(), true);
 
 		messageLabel.setBackground(Color.lightGray);
 
 		frame.getContentPane().add(messageLabel, BorderLayout.SOUTH);
 
-		// Rysowanie planszy
-		final var boardPanel = new JPanel();
+		// Drawing the board
+		final JPanel boardPanel = new JPanel();
 		boardPanel.setBackground(Color.black);
 		boardPanel.setLayout(new GridLayout(17, 25, 2, 2));
 		for (int i = 0; i < Constants.HEIGHT; i++) {
@@ -75,7 +116,9 @@ public class ChineseCheckersClient {
 		fillHomes();
 	}
 
-	//rysowanie "pionkow" graczy
+	/**
+	 * Drawing player's homes - player's pawns
+	 */
 	private void fillHomes() {
 		for (int i = 0; i < Constants.HEIGHT; i++) {
 			for (int j = 0; j < Constants.WIDTH; j++) {
@@ -84,7 +127,6 @@ public class ChineseCheckersClient {
 						board[i][j].setBackground(Constants.PLAYER_1_COLOR);
 					if (i > 12)
 						board[i][j].setBackground(Constants.PLAYER_2_COLOR);
-
 
 					fillForComplexHomes(Constants.HOME_3, Constants.PLAYER_3_COLOR, i, j);
 					fillForComplexHomes(Constants.HOME_4, Constants.PLAYER_4_COLOR, i, j);
@@ -97,6 +139,15 @@ public class ChineseCheckersClient {
 	}
 
 	//metoda pomocnicza do rysowania bardziej zlozonych domow
+
+	/**
+	 * Helper method for drawing more complex player's homes
+	 *
+	 * @param HOME_X - Coordinates of player's pawns
+	 * @param color  - Color of player's pawns
+	 * @param i      - Current x coordinate
+	 * @param j      - Current y coordinate
+	 */
 	private void fillForComplexHomes(final Integer[][] HOME_X, final Color color, final int i, final int j) {
 		for (final Integer[] x : HOME_X) {
 			for (int y = 0; y < x.length - 1; y += 2) {
@@ -106,7 +157,14 @@ public class ChineseCheckersClient {
 		}
 	}
 
-	public MouseAdapter createAdapter(final int x, final int y) {
+	/**
+	 * A method for creating an adapter to handle moves
+	 *
+	 * @param x - x coordinate
+	 * @param y - y coordinate
+	 * @return an object of mouse adapter with given properties
+	 */
+	private MouseAdapter createAdapter(final int x, final int y) {
 		return new MouseAdapter() {
 			@Override
 			public void mousePressed(final MouseEvent e) {
@@ -121,7 +179,15 @@ public class ChineseCheckersClient {
 		};
 	}
 
-	public void calculateSquare(final int squareX, final int squareY, final int movedX, final int movedY) {
+	/**
+	 * Calculates a square's coordinates that player has moved on
+	 *
+	 * @param squareX - previous X location
+	 * @param squareY - previous Y location
+	 * @param movedX  - new X location
+	 * @param movedY  - new Y location
+	 */
+	private void calculateSquare(final int squareX, final int squareY, final int movedX, final int movedY) {
 		int changeX = 0;
 		int changeY = 0;
 
@@ -137,12 +203,11 @@ public class ChineseCheckersClient {
 				changeY = movedY / 50 - 1;
 		}
 		try {
-
 			if (board[squareX + changeY][squareY + changeX].getBackground() != Color.white) {
 				currentSquare = board[squareX + changeY][squareY + changeX];
 
 				//TODO: Check game logic - if the move is correct
-				out.println("MOVE " + squareX + " " + squareY + " " + (squareX + changeY) + " " + (squareY + changeX));
+				output.println("MOVE " + squareX + " " + squareY + " " + (squareX + changeY) + " " + (squareY + changeX));
 			}
 		} catch (final Throwable t) {
 			t.printStackTrace();
@@ -153,32 +218,29 @@ public class ChineseCheckersClient {
 	/**
 	 * The main thread of the client will listen for messages from the server. The
 	 * first message will be a "WELCOME" message in which we receive our mark. Then
-	 * we go into a loop listening for any of the other messages, and handling each
-	 * message appropriately. The "VICTORY", "DEFEAT", "TIE", and
-	 * "OTHER_PLAYER_LEFT" messages will ask the user whether or not to play another
-	 * game. If the answer is no, the loop is exited and the server is sent a "QUIT"
-	 * message.
+	 * we go into a loop listening for any other messages, and handling each
+	 * message appropriately.
 	 */
 	public void play() throws Exception {
 		try {
-			// komunikat z serwera
-			var response = in.nextLine();
+			//Message from the server
+			String response = input.nextLine();
 			final int mark = Integer.parseInt(String.valueOf(response.charAt(8)));
 
 			frame.setTitle("Chinese Checkers: Player " + mark);
-			//tylko pierwszy gracz moze zaczac gre
+
+			//Only first player can start the game
 			if (mark == 1) {
 				startButton.addActionListener(e -> {
-					out.println("START");
+					output.println("START");
 					frame.getContentPane().remove(startButton);
 					frame.repaint();
 				});
 				frame.getContentPane().add(startButton, BorderLayout.NORTH);
 			}
 
-			// W zaleznosci jaki komunikat przyszedl
-			while (in.hasNextLine()) {
-				response = in.nextLine();
+			while (input.hasNextLine()) {
+				response = input.nextLine();
 				if (response.startsWith("VALID_MOVE")) {
 					messageLabel.setText("Valid move, please wait");
 					if (currentSquare != null) {
@@ -197,7 +259,7 @@ public class ChineseCheckersClient {
 					final int playerNumber = Integer.parseInt(locations[5]);
 					final int howManyPlayers = Integer.parseInt(locations[6]);
 					final int previousPlayer = playerNumber == 1 ? howManyPlayers : playerNumber - 1;
-					
+
 					board[previousLocationX][previousLocationY].setBackground(Color.green);
 					board[previousLocationX][previousLocationY].repaint();
 					board[locationX][locationY].setBackground(Constants.getPlayerColor(previousPlayer));
@@ -222,7 +284,7 @@ public class ChineseCheckersClient {
 					break;
 				}
 			}
-			out.println("QUIT");
+			output.println("QUIT");
 		} catch (final Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -231,7 +293,10 @@ public class ChineseCheckersClient {
 		}
 	}
 
-	static class Square extends JPanel {
+	/**
+	 * A class that represents a square on the board
+	 */
+	private static class Square extends JPanel {
 		JLabel label = new JLabel();
 
 		public Square() {
@@ -241,6 +306,12 @@ public class ChineseCheckersClient {
 		}
 	}
 
+	/**
+	 * Main method that runs the client
+	 *
+	 * @param args - server IP
+	 * @throws Exception
+	 */
 	public static void main(final String[] args) throws Exception {
 		if (args.length != 1) {
 			System.err.println("Pass the server IP as the sole command line argument");
