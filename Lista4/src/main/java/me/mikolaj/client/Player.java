@@ -1,6 +1,7 @@
 package me.mikolaj.client;
 
 import me.mikolaj.logic.Game;
+import me.mikolaj.logic.GameState;
 import me.mikolaj.utils.Constants;
 
 import java.awt.*;
@@ -10,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Player implements Runnable {
 
@@ -54,25 +56,30 @@ public class Player implements Runnable {
 		input = new Scanner(socket.getInputStream());
 		output = new PrintWriter(socket.getOutputStream(), true);
 		output.println("WELCOME " + number);
-		if (number == 1) {
+		if (number == 1)
 			gameInstance.setCurrentPlayer(this);
-			output.println("MESSAGE Waiting for opponent to connect");
-		} else {
-			opponents.add(gameInstance.getCurrentPlayer());
-			for (final Player p : getPlayers()) {
-				if (p != this) {
-					//TODO: Hardcoded for only 2 players
-					p.getOpponents().add(this);
-					p.output.println("MESSAGE Your move");
-				}
-			}
-		}
+
+		output.println("MESSAGE Waiting for opponent to connect");
 	}
 
 	private void processCommands() {
 		while (input.hasNextLine()) {
 			// Obsluga komendy od klienta
 			final var command = input.nextLine();
+
+			if (gameInstance.getGameState() == GameState.WAITING_FOR_PLAYERS) {
+				if (command.startsWith("START")) {
+					gameInstance.setGameState(GameState.STARTED);
+					final Player firstPlayer = getPlayers().get(0);
+					firstPlayer.output.println("MESSAGE Your move");
+					for (final Player player : getPlayers()) {
+						player.setOpponents(getPlayers().stream().filter(p -> !p.equals(player)).collect(Collectors.toList()));
+					}
+					firstPlayer.getOpponents().forEach(opponent -> opponent.output.println("MESSAGE Please wait for your move"));
+				}
+				continue;
+			}
+
 			if (command.startsWith("QUIT")) {
 				return;
 			} else if (command.startsWith("MOVE")) {
@@ -91,10 +98,11 @@ public class Player implements Runnable {
 	private void processMoveCommand(final int previousLocationX, final int previousLocationY,
 									final int locationX, final int locationY) {
 		try {
-			gameInstance.move(locationX, locationY, this);
+			gameInstance.move(this);
 			output.println("VALID_MOVE");
 			opponents.forEach(opponent -> opponent.output.println("OPPONENT_MOVED " + previousLocationX + " "
-					+ previousLocationY + " " + locationX + " " + locationY));
+					+ previousLocationY + " " + locationX + " " + locationY + " "
+					+ gameInstance.getCurrentPlayer().getNumber() + " " + players.size()));
 			//TODO: implement logic - victory, tie etc.
 
 		} catch (final IllegalStateException e) {
