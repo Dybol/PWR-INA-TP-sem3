@@ -206,8 +206,9 @@ public class ChineseCheckersClient {
 			if (board[squareX + changeY][squareY + changeX].getBackground() != Color.white) {
 				currentSquare = board[squareX + changeY][squareY + changeX];
 
-				//TODO: Check game logic - if the move is correct
-				output.println("MOVE " + squareX + " " + squareY + " " + (squareX + changeY) + " " + (squareY + changeX));
+				//Verification is done by the server
+				output.println("MOVE " + squareX + " " + squareY + " " + (squareX + changeY) + " " + (squareY + changeX) + " "
+						+ previousSquare.getBackground().getRGB());
 			}
 		} catch (final Throwable t) {
 			t.printStackTrace();

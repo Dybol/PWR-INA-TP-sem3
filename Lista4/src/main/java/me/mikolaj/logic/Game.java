@@ -1,6 +1,9 @@
 package me.mikolaj.logic;
 
 import me.mikolaj.client.Player;
+import me.mikolaj.utils.Constants;
+
+import java.awt.*;
 
 /**
  * Game representation
@@ -11,6 +14,11 @@ public class Game {
 	 * Singleton - there is only one game instance
 	 */
 	private static volatile Game gameInstance = null;
+
+	/**
+	 * Represents the game board
+	 */
+	private Color[][] board = new Color[17][25];
 
 	/**
 	 * Which player moves now
@@ -43,6 +51,71 @@ public class Game {
 			counter = 0;
 		currentPlayer = Player.getPlayers().get(counter);
 		counter++;
+	}
+
+	/**
+	 * Fills double array board with appropriate colors
+	 */
+	public void fillGameBoardWithHomes() {
+		final Color[][] colors = new Color[17][25];
+
+		for (int i = 0; i < Constants.HEIGHT; i++) {
+			for (int j = 0; j < Constants.OFFSETS[i]; j++) {
+				colors[i][j] = Color.white;
+			}
+
+			for (int j = Constants.OFFSETS[i]; j < Constants.OFFSETS[i] + Constants.WIDTHS[i] * 2 - 1; j += 2) {
+				if (j < 25)
+					colors[i][j] = Color.green;
+
+				if (j < 24)
+					colors[i][j + 1] = Color.white;
+
+			}
+			for (int j = Constants.OFFSETS[i] + Constants.WIDTHS[i] * 2 - 1; j < Constants.WIDTH; j++) {
+				colors[i][j] = Color.white;
+			}
+		}
+
+		for (int i = 0; i < Constants.HEIGHT; i++) {
+			for (int j = 0; j < Constants.WIDTH; j++) {
+				if (colors[i][j] == Color.green) {
+					if (i < 4)
+						colors[i][j] = Constants.PLAYER_1_COLOR;
+					if (i > 12)
+						colors[i][j] = Constants.PLAYER_2_COLOR;
+				}
+			}
+		}
+
+		setBoard(colors);
+		for (int i = 0; i < Constants.HEIGHT; i++) {
+			for (int j = 0; j < Constants.WIDTH; j++) {
+				fillForComplexHomes(Constants.HOME_3, Constants.PLAYER_3_COLOR, i, j);
+				fillForComplexHomes(Constants.HOME_4, Constants.PLAYER_4_COLOR, i, j);
+				fillForComplexHomes(Constants.HOME_5, Constants.PLAYER_5_COLOR, i, j);
+				fillForComplexHomes(Constants.HOME_6, Constants.PLAYER_6_COLOR, i, j);
+			}
+		}
+	}
+
+	/**
+	 * Helper method for filling double array - board[][] with colors
+	 *
+	 * @param HOME_X - Coordinates of player's pawns
+	 * @param color  - Color of player's pawns
+	 * @param i      - Current x coordinate
+	 * @param j      - Current y coordinate
+	 */
+	private void fillForComplexHomes(final Integer[][] HOME_X, final Color color, final int i, final int j) {
+		for (final Integer[] x : HOME_X) {
+			for (int y = 0; y < x.length - 1; y += 2) {
+				if (x[y] == i && x[y + 1] == j) {
+					board[i][j] = color;
+					break;
+				}
+			}
+		}
 	}
 
 
@@ -80,6 +153,14 @@ public class Game {
 	 */
 	public void setGameState(final GameState gameState) {
 		this.gameState = gameState;
+	}
+
+	public Color[][] getBoard() {
+		return board;
+	}
+
+	public void setBoard(final Color[][] board) {
+		this.board = board;
 	}
 
 	/**

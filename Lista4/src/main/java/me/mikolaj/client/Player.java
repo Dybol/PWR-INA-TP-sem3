@@ -2,7 +2,9 @@ package me.mikolaj.client;
 
 import me.mikolaj.logic.Game;
 import me.mikolaj.logic.GameState;
+import me.mikolaj.utils.Constants;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -111,6 +113,8 @@ public class Player implements Runnable {
 
 			if (gameInstance.getGameState() == GameState.WAITING_FOR_PLAYERS) {
 				if (command.startsWith("START")) {
+
+					gameInstance.fillGameBoardWithHomes();
 					gameInstance.setGameState(GameState.STARTED);
 					final Player firstPlayer = getPlayers().get(0);
 					firstPlayer.output.println("MESSAGE Your move");
@@ -128,16 +132,17 @@ public class Player implements Runnable {
 			} else if (command.startsWith("MOVE")) {
 				//splitting into prevX, prevY, X, Y
 				final String[] locations = command.split(" ");
-				System.out.println("MOVE : " + locations[1] + " " + locations[2] + " " + locations[3] + " " + locations[4]);
 				processMoveCommand(Integer.parseInt(locations[1]),
 						Integer.parseInt(locations[2]),
 						Integer.parseInt(locations[3]),
-						Integer.parseInt(locations[4]));
+						Integer.parseInt(locations[4]),
+						new Color(Integer.parseInt(locations[5])));
 			}
 		}
 	}
 
-	// Obsluga komendy po zaznaczeniu czegos
+
+// Obsluga komendy po zaznaczeniu czegos
 
 	/**
 	 * Processing move command - getting the right location
@@ -146,11 +151,35 @@ public class Player implements Runnable {
 	 * @param previousLocationY - Y coordinate of a previous location
 	 * @param locationX         - X coordinate of a new location
 	 * @param locationY         - Y coordinate of a new location
+	 * @param color             - color of a moved square
 	 */
 	private void processMoveCommand(final int previousLocationX, final int previousLocationY,
-									final int locationX, final int locationY) {
+									final int locationX, final int locationY, final Color color) {
 		try {
+			if (!color.equals(Constants.getPlayerColor(number))) {
+				output.println("MESSAGE You cannot move with not your color!");
+				return;
+			}
+
+			final Color colorAtGivenLocation = gameInstance.getBoard()[locationX][locationY];
+
+
+			//checking move to adjacent squares
+			final boolean valid = Math.abs(previousLocationX - locationX) == 1 && Math.abs(previousLocationY - locationY) == 1
+					&& colorAtGivenLocation.equals(Color.green);
+
+
+			//checking move to further squares
+			final boolean valid2 = complexMove(previousLocationX, previousLocationY, locationX, locationY, colorAtGivenLocation);
+
+			if (!valid && !valid2) {
+				output.println("MESSAGE This move is not valid!");
+				return;
+			}
+
 			gameInstance.move(this);
+			gameInstance.getBoard()[locationX][locationY] = color;
+			gameInstance.getBoard()[previousLocationX][previousLocationY] = Color.green;
 			output.println("VALID_MOVE");
 			opponents.forEach(opponent -> opponent.output.println("OPPONENT_MOVED " + previousLocationX + " "
 					+ previousLocationY + " " + locationX + " " + locationY + " "
@@ -160,6 +189,72 @@ public class Player implements Runnable {
 		} catch (final IllegalStateException e) {
 			output.println("MESSAGE " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Validates move
+	 *
+	 * @param previousLocationX    - X coordinate of a previous location
+	 * @param previousLocationY    - Y coordinate of a previous location
+	 * @param locationX            - X coordinate of a new location
+	 * @param locationY            - Y coordinate of a new location
+	 * @param colorAtGivenLocation - Color of a square at new Location
+	 * @return true if move is valid, false otherwise
+	 */
+	private boolean complexMove(final int previousLocationX, final int previousLocationY,
+								final int locationX, final int locationY,
+								final Color colorAtGivenLocation) {
+		if (!colorAtGivenLocation.equals(Color.green)) {
+			return false;
+		}
+
+		if (previousLocationX == locationX && previousLocationY == locationY) {
+			return true;
+		}
+
+
+		if (locationX - previousLocationX > 1 && locationY - previousLocationY > 1) {
+			final int tempXLoc = previousLocationX + 1;
+			final int tempYLoc = previousLocationY + 1;
+			final Color tempColor = gameInstance.getBoard()[tempXLoc][tempYLoc];
+
+			if (!tempColor.equals(Color.green) && !tempColor.equals(Color.white)) {
+				return complexMove(previousLocationX + 2, previousLocationY + 2, locationX, locationY, colorAtGivenLocation);
+			} else {
+				return false;
+			}
+		} else if (locationX - previousLocationX > 1 && locationY - previousLocationY < -1) {
+			final int tempXLoc = previousLocationX + 1;
+			final int tempYLoc = previousLocationY - 1;
+			final Color tempColor = gameInstance.getBoard()[tempXLoc][tempYLoc];
+
+			if (!tempColor.equals(Color.green) && !tempColor.equals(Color.white)) {
+				return complexMove(previousLocationX + 2, previousLocationY - 2, locationX, locationY, colorAtGivenLocation);
+			} else {
+				return false;
+			}
+		} else if (locationX - previousLocationX < -1 && locationY - previousLocationY < -1) {
+			final int tempXLoc = previousLocationX - 1;
+			final int tempYLoc = previousLocationY - 1;
+			final Color tempColor = gameInstance.getBoard()[tempXLoc][tempYLoc];
+
+			if (!tempColor.equals(Color.green) && !tempColor.equals(Color.white)) {
+				return complexMove(previousLocationX - 2, previousLocationY - 2, locationX, locationY, colorAtGivenLocation);
+			} else {
+				return false;
+			}
+		} else if (locationX - previousLocationX < -1 && locationY - previousLocationY > 1) {
+			final int tempXLoc = previousLocationX - 1;
+			final int tempYLoc = previousLocationY + 1;
+			final Color tempColor = gameInstance.getBoard()[tempXLoc][tempYLoc];
+
+			if (!tempColor.equals(Color.green) && !tempColor.equals(Color.white)) {
+				return complexMove(previousLocationX - 2, previousLocationY + 2, locationX, locationY, colorAtGivenLocation);
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	/**
