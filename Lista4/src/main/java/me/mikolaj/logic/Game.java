@@ -166,7 +166,7 @@ public class Game {
 	/**
 	 * Double-checked locking
 	 *
-	 * @return
+	 * @return gameInstance
 	 */
 	public static Game getGameInstance() {
 		if (gameInstance == null) {

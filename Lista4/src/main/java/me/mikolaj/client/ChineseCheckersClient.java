@@ -64,7 +64,6 @@ public class ChineseCheckersClient {
 	 * We are creating the board
 	 *
 	 * @param serverAddress - server IP address
-	 * @throws Exception
 	 */
 	public ChineseCheckersClient(final String serverAddress) throws Exception {
 
@@ -137,8 +136,6 @@ public class ChineseCheckersClient {
 			}
 		}
 	}
-
-	//metoda pomocnicza do rysowania bardziej zlozonych domow
 
 	/**
 	 * Helper method for drawing more complex player's homes
@@ -324,7 +321,6 @@ public class ChineseCheckersClient {
 	 * Main method that runs the client
 	 *
 	 * @param args - server IP
-	 * @throws Exception
 	 */
 	public static void main(final String[] args) throws Exception {
 		if (args.length != 1) {

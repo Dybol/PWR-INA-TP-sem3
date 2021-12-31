@@ -14,8 +14,7 @@ public class ChineseCheckersServer {
 	/**
 	 * Main method that runs the server and adds clients to the pool
 	 *
-	 * @param args
-	 * @throws Exception
+	 * @param args - program arguments
 	 */
 	public static void main(final String[] args) throws Exception {
 		try (final ServerSocket listener = new ServerSocket(58901)) {

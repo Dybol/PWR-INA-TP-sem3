@@ -89,8 +89,6 @@ public class Player implements Runnable {
 
 	/**
 	 * Sets a beginning of the game
-	 *
-	 * @throws IOException
 	 */
 	private void setup() throws IOException {
 		input = new Scanner(socket.getInputStream());
@@ -159,9 +157,6 @@ public class Player implements Runnable {
 			}
 		}
 	}
-
-
-// Obsluga komendy po zaznaczeniu czegos
 
 	/**
 	 * Processing move command - getting the right location
