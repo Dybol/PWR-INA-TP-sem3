@@ -204,7 +204,11 @@ public class Player implements Runnable {
 					+ previousLocationY + " " + locationX + " " + locationY + " "
 					+ gameInstance.getCurrentPlayer().getNumber() + " " + players.size()));
 
-			//TODO: implement logic - victory, tie etc.
+			if (hasWinner(number)) {
+				output.println("VICTORY");
+				opponents.forEach(opponent -> opponent.output.println("DEFEAT"));
+			}
+
 		} catch (final IllegalStateException e) {
 			output.println("MESSAGE " + e.getMessage());
 		}
@@ -274,6 +278,45 @@ public class Player implements Runnable {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if the game is over
+	 *
+	 * @param number - number of a player for which we are checking if he won
+	 * @return true if there is a winner, false otherwise
+	 */
+	private boolean hasWinner(final int number) {
+		final Color[][] board = gameInstance.getBoard();
+		final Color playersColor = Constants.getPlayerColor(number);
+		int count1 = 0;
+		int count2 = 0;
+		int count3 = 0;
+		int count4 = 0;
+		int count5 = 0;
+		int count6 = 0;
+
+		for (int i = 0; i < Constants.HEIGHT; i++) {
+			for (int j = 0; j < Constants.WIDTH; j++) {
+				if (board[i][j].equals(playersColor)) {
+					final Integer[] t = {i, j};
+					if (i < 4 && number != 1)
+						count1++;
+					else if (i > 12 && number != 2)
+						count2++;
+					else if (Arrays.stream(Constants.HOME_3).anyMatch(m -> Arrays.equals(m, t)) && number != 3)
+						count3++;
+					else if (Arrays.stream(Constants.HOME_4).anyMatch(m -> Arrays.equals(m, t)) && number != 4)
+						count4++;
+					else if (Arrays.stream(Constants.HOME_5).anyMatch(m -> Arrays.equals(m, t)) && number != 5)
+						count5++;
+					else if (Arrays.stream(Constants.HOME_6).anyMatch(m -> Arrays.equals(m, t)) && number != 6)
+						count6++;
+				}
+			}
+		}
+
+		return count1 == 10 || count2 == 10 || count3 == 10 || count4 == 10 || count5 == 10 || count6 == 10;
 	}
 
 	/**
