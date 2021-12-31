@@ -227,25 +227,28 @@ public class ChineseCheckersClient {
 			//Message from the server
 			String response = input.nextLine();
 			final int mark = Integer.parseInt(String.valueOf(response.charAt(8)));
+			boolean removedStartButton = false;
 
 			frame.setTitle("Chinese Checkers: Player " + mark);
 
 			//Only first player can start the game
 			if (mark == 1) {
-				startButton.addActionListener(e -> {
-					output.println("START");
-					frame.getContentPane().remove(startButton);
-					frame.repaint();
-				});
+				startButton.addActionListener(e -> output.println("START"));
 				frame.getContentPane().add(startButton, BorderLayout.NORTH);
 			}
 
 			while (input.hasNextLine()) {
 				response = input.nextLine();
 				if (response.startsWith("VALID_MOVE")) {
+					if (mark == 1 && !removedStartButton) {
+						removedStartButton = true;
+						frame.getContentPane().remove(startButton);
+						frame.repaint();
+					}
+					final String[] responses = response.split(" ");
 					messageLabel.setText("Valid move, please wait");
 					if (currentSquare != null) {
-						currentSquare.setBackground(Constants.getPlayerColor(mark));
+						currentSquare.setBackground(Constants.getPlayerColor(Integer.parseInt(responses[1])));
 						currentSquare.repaint();
 						previousSquare.setBackground(Color.green);
 						previousSquare.repaint();
@@ -259,16 +262,26 @@ public class ChineseCheckersClient {
 					final int locationY = Integer.parseInt(locations[4]);
 					final int playerNumber = Integer.parseInt(locations[5]);
 					final int howManyPlayers = Integer.parseInt(locations[6]);
-					final int previousPlayer = playerNumber == 1 ? howManyPlayers : playerNumber - 1;
+					int previousPlayer = playerNumber == 1 ? howManyPlayers : playerNumber - 1;
+					if (howManyPlayers == 3) {
+						previousPlayer = playerNumber == 2 ? howManyPlayers + 1 : playerNumber - 1;
+					}
 
 					board[previousLocationX][previousLocationY].setBackground(Color.green);
 					board[previousLocationX][previousLocationY].repaint();
 					board[locationX][locationY].setBackground(Constants.getPlayerColor(previousPlayer));
 					board[locationX][locationY].repaint();
-					if (mark == playerNumber)
-						messageLabel.setText("Opponent moved, your turn");
-					else
-						messageLabel.setText("Opponent moved, please wait");
+					if (howManyPlayers == 3) {
+						if (mark + 1 == playerNumber)
+							messageLabel.setText("Opponent moved, your turn");
+						else
+							messageLabel.setText("Opponent moved, please wait");
+					} else {
+						if (mark == playerNumber)
+							messageLabel.setText("Opponent moved, your turn");
+						else
+							messageLabel.setText("Opponent moved, please wait");
+					}
 				} else if (response.startsWith("MESSAGE")) {
 					messageLabel.setText(response.substring(8));
 				} else if (response.startsWith("VICTORY")) {

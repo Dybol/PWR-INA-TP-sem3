@@ -8,9 +8,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +31,7 @@ public class Player implements Runnable {
 	/**
 	 * Player's number
 	 */
-	private final int number;
+	private int number;
 
 	/**
 	 * List of player's opponents
@@ -113,10 +113,29 @@ public class Player implements Runnable {
 
 			if (gameInstance.getGameState() == GameState.WAITING_FOR_PLAYERS) {
 				if (command.startsWith("START")) {
+					final Player firstPlayer = getPlayers().get(0);
+					boolean canStart = true;
+					switch (getPlayers().size()) {
+						case 1:
+							firstPlayer.output.println("MESSAGE Please wait for opponents");
+							canStart = false;
+							break;
+						case 3:
+							final Queue<Integer> queue = new PriorityQueue<>();
+							queue.addAll(Arrays.asList(2, 3, 4));
+							//we have 3 players to it cannot produce null pointer ex
+							getPlayers().forEach(player -> player.setNumber(queue.poll()));
+						case 5:
+							players.forEach(player -> player.output.println("MESSAGE You cannot start the game as 5!"));
+							canStart = false;
+							break;
+					}
+					if (!canStart)
+						continue;
 
 					gameInstance.fillGameBoardWithHomes();
 					gameInstance.setGameState(GameState.STARTED);
-					final Player firstPlayer = getPlayers().get(0);
+
 					firstPlayer.output.println("MESSAGE Your move");
 					for (final Player player : getPlayers()) {
 						player.setOpponents(getPlayers().stream().filter(p -> !p.equals(player)).collect(Collectors.toList()));
@@ -180,7 +199,7 @@ public class Player implements Runnable {
 			gameInstance.move(this);
 			gameInstance.getBoard()[locationX][locationY] = color;
 			gameInstance.getBoard()[previousLocationX][previousLocationY] = Color.green;
-			output.println("VALID_MOVE");
+			output.println("VALID_MOVE " + number);
 			opponents.forEach(opponent -> opponent.output.println("OPPONENT_MOVED " + previousLocationX + " "
 					+ previousLocationY + " " + locationX + " " + locationY + " "
 					+ gameInstance.getCurrentPlayer().getNumber() + " " + players.size()));
@@ -267,6 +286,15 @@ public class Player implements Runnable {
 	}
 
 	/**
+	 * Sets player's number
+	 *
+	 * @param number player's number
+	 */
+	public void setNumber(final int number) {
+		this.number = number;
+	}
+
+	/**
 	 * Gets player's opponents
 	 *
 	 * @return player's opponents
@@ -291,6 +319,13 @@ public class Player implements Runnable {
 	 */
 	public static List<Player> getPlayers() {
 		return players;
+	}
+
+	@Override
+	public String toString() {
+		return "Player{" +
+				"number=" + number +
+				'}';
 	}
 }
 
