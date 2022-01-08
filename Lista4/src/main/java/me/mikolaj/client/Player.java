@@ -76,9 +76,11 @@ public class Player implements Runnable {
 		} catch (final Exception e) {
 			e.printStackTrace();
 		} finally {
-			//TODO: Handle player leaves
 			if (opponents != null) {
-
+				opponents.forEach(opponent -> {
+					if (!opponent.equals(this))
+						opponent.output.println("OTHER_PLAYER_LEFT");
+				});
 			}
 			try {
 				socket.close();
@@ -114,19 +116,20 @@ public class Player implements Runnable {
 					final Player firstPlayer = getPlayers().get(0);
 					boolean canStart = true;
 					switch (getPlayers().size()) {
-						case 1:
+						case 1 -> {
 							firstPlayer.output.println("MESSAGE Please wait for opponents");
 							canStart = false;
-							break;
-						case 3:
+						}
+						case 3 -> {
 							final Queue<Integer> queue = new PriorityQueue<>();
 							queue.addAll(Arrays.asList(2, 3, 4));
 							//we have 3 players to it cannot produce null pointer ex
 							getPlayers().forEach(player -> player.setNumber(queue.poll()));
-						case 5:
+						}
+						case 5 -> {
 							players.forEach(player -> player.output.println("MESSAGE You cannot start the game as 5!"));
 							canStart = false;
-							break;
+						}
 					}
 					if (!canStart)
 						continue;
