@@ -37,7 +37,6 @@ public class ConnectionTest {
 	 */
 	@Test
 	public synchronized void testPlayerJoin() throws Exception {
-		Thread.sleep(1000);
 		final ChineseCheckersServer server = new ChineseCheckersServer();
 		final Thread t = new Thread(() -> {
 			try {
