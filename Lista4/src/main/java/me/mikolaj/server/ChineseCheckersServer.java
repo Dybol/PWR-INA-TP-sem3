@@ -1,6 +1,6 @@
 package me.mikolaj.server;
 
-import me.mikolaj.client.Player;
+import me.mikolaj.logic.Player;
 
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +32,6 @@ public class ChineseCheckersServer {
 			final ServerSocket listener = new ServerSocket(port);
 			System.out.println("Chinese Checkers server is running...");
 			final ExecutorService pool = Executors.newFixedThreadPool(6);
-
 			// Adding players
 			while (true) {
 				if (Player.getPlayers().size() > 6)

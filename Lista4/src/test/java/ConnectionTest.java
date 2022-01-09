@@ -1,5 +1,5 @@
 import me.mikolaj.client.ChineseCheckersClient;
-import me.mikolaj.client.Player;
+import me.mikolaj.logic.Player;
 import me.mikolaj.server.ChineseCheckersServer;
 import org.junit.Assert;
 import org.junit.Test;
