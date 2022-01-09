@@ -39,7 +39,7 @@ public class ChineseCheckersServer {
 				pool.execute(new Player(listener.accept(), Player.getPlayers().size() + 1));
 			}
 		} catch (final Exception ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 			System.out.println("There were problem with the server!");
 		}
 	}
