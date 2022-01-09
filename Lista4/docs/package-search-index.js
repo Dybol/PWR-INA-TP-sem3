@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"me.mikolaj.client"},{"l":"me.mikolaj.logic"},{"l":"me.mikolaj.server"},{"l":"me.mikolaj.utils"}];updateSearchResults();
