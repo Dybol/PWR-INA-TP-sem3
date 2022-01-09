@@ -157,6 +157,12 @@ public class Player implements Runnable {
 						Integer.parseInt(locations[3]),
 						Integer.parseInt(locations[4]),
 						new Color(Integer.parseInt(locations[5])));
+			} else if (command.startsWith("WAIT")) {
+				if (gameInstance.getCurrentPlayer().equals(this)) {
+					final Player player = gameInstance.nextPlayer();
+					output.println("MESSAGE You have decided not to move in this turn");
+					player.output.println("MESSAGE Opponent decided not to move in this turn, so it is your turn now");
+				}
 			}
 		}
 	}
@@ -189,7 +195,7 @@ public class Player implements Runnable {
 			//checking move to further squares
 			final boolean valid2 = complexMove(previousLocationX, previousLocationY, locationX, locationY, colorAtGivenLocation);
 
-			if (!valid && !valid2) {
+			if (!valid && !valid2 || (!checkIfPawnIsInOtherHome(previousLocationX, previousLocationY, locationX, locationY))) {
 				output.println("MESSAGE This move is not valid!");
 				return;
 			}
@@ -276,6 +282,71 @@ public class Player implements Runnable {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if a player doesn't want to leave other home - he cannot do that
+	 *
+	 * @param previousLocationX - previous X location
+	 * @param previousLocationY - previous Y location
+	 * @param locationX         - current X location
+	 * @param locationY         - current Y location
+	 * @return true if the move is valid, false otherwise
+	 */
+	private boolean checkIfPawnIsInOtherHome(final int previousLocationX, final int previousLocationY,
+											 final int locationX, final int locationY) {
+		//for player 1
+		if (previousLocationX < 4) {
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_1_COLOR) && locationX >= 4) {
+				return false;
+			}
+			//for player 2
+		} else if (previousLocationX > 12) {
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_2_COLOR) && locationX <= 12) {
+				return false;
+			}
+		} else {
+			//for other players
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_3_COLOR))
+				if (!checkForComplexHomes(Constants.HOME_3, previousLocationX, previousLocationY, locationX, locationY))
+					return false;
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_4_COLOR))
+				if (!checkForComplexHomes(Constants.HOME_4, previousLocationX, previousLocationY, locationX, locationY))
+					return false;
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_5_COLOR))
+				if (!checkForComplexHomes(Constants.HOME_5, previousLocationX, previousLocationY, locationX, locationY))
+					return false;
+			if (!Constants.getPlayerColor(this.number).equals(Constants.PLAYER_6_COLOR))
+				if (!checkForComplexHomes(Constants.HOME_6, previousLocationX, previousLocationY, locationX, locationY))
+					return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param HOME_X   - Coordinates of player's pawns
+	 * @param prevLocX - previous X location
+	 * @param prevLocY - previous Y location
+	 * @param locX     - target X location
+	 * @param locY     - target Y location
+	 * @return if this move is okay
+	 */
+	private boolean checkForComplexHomes(final Integer[][] HOME_X, final int prevLocX,
+										 final int prevLocY, final int locX, final int locY) {
+		boolean flag1 = false;
+		boolean flag2 = false;
+		for (final Integer[] x : HOME_X) {
+			for (int y = 0; y < x.length - 1; y += 2) {
+				if (x[y] == prevLocX && x[y + 1] == prevLocY) {
+					flag1 = true;
+				}
+				if (x[y] == locX && x[y + 1] == locY) {
+					flag2 = true;
+				}
+			}
+		}
+		//flag1= true && flag2 = false -> player tries to leave other home
+		return !flag1 || flag2;
 	}
 
 	/**

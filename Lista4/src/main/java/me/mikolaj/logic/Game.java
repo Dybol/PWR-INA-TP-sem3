@@ -47,10 +47,15 @@ public class Game {
 			throw new IllegalStateException("You don't have an opponent yet");
 		}
 
+		nextPlayer();
+	}
+
+	public synchronized Player nextPlayer() {
 		if (counter == Player.getPlayers().size())
 			counter = 0;
 		currentPlayer = Player.getPlayers().get(counter);
 		counter++;
+		return currentPlayer;
 	}
 
 	/**
@@ -161,6 +166,18 @@ public class Game {
 
 	public void setBoard(final Color[][] board) {
 		this.board = board;
+	}
+
+	public int getCounter() {
+		return counter;
+	}
+
+	public void setCounter(final int counter) {
+		this.counter = counter;
+	}
+
+	public void increaseCounter() {
+		this.counter++;
 	}
 
 	/**

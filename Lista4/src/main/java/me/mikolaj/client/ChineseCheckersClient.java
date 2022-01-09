@@ -231,15 +231,20 @@ public class ChineseCheckersClient {
 			//Only first player can start the game
 			if (mark == 1) {
 				startButton.addActionListener(e -> output.println("START"));
-				frame.getContentPane().add(startButton, BorderLayout.NORTH);
+			} else {
+				startButton.setText("Wait");
+				startButton.addActionListener(e -> output.println("WAIT"));
 			}
+			frame.getContentPane().add(startButton, BorderLayout.NORTH);
+
 
 			while (input.hasNextLine()) {
 				response = input.nextLine();
 				if (response.startsWith("VALID_MOVE")) {
 					if (mark == 1 && !removedStartButton) {
 						removedStartButton = true;
-						frame.getContentPane().remove(startButton);
+						startButton.setText("Wait");
+						startButton.addActionListener(e -> output.println("WAIT"));
 						frame.repaint();
 					}
 					final String[] responses = response.split(" ");
